@@ -1,6 +1,7 @@
 const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const app = require("../../server");
+const { verifyJwt } = require("../../utils/jwt");
 
 describe("Task Manager API E2E Test Suite - Users", () => {
   let BASE_URL = "";
@@ -261,6 +262,168 @@ describe("Task Manager API E2E Test Suite - Users", () => {
 
       const actual = await res.json();
       assert.ok(actual, `Should've returned the registered user`);
+    });
+  });
+
+  describe("POST /user/login", () => {
+    const method = "POST";
+    const headers = { "Content-Type": "application/json" };
+    const user = {
+      user: "test-user",
+      password: "#testUser01",
+    };
+
+    it("should return 401 (unauthorized) with correct username and incorrect password", async () => {
+      const body = Object.assign({}, user, { password: "123" });
+
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Incorrect password!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with correct email and incorrect password", async () => {
+      const body = Object.assign({}, user, {
+        user: "testuser@email.com",
+        password: "123",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Incorrect password!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 404 (not found) with an username that's not registered", async () => {
+      const body = Object.assign({}, user, { user: "newuser" });
+
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 404;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "User not found!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 404 (not found) with an email that's not registered", async () => {
+      const body = Object.assign({}, user, { user: "invalid@email.com" });
+
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 404;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "User not found!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 200 (ok) and the access token with correct username and password", async () => {
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(user),
+      });
+
+      const expected = 200;
+      assert.strictEqual(
+        res.status,
+        expected,
+        `Status should be: ${expected}. Actual: ${res.status}`
+      );
+
+      const token = await res.json();
+      verifyJwt(token);
+    });
+
+    it("should return 200 (ok) and the access token with correct email and password", async () => {
+      const body = Object.assign({}, user, { user: "testuser@email.com" });
+
+      const res = await fetch(`${BASE_URL}/user/login`, {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const expected = 200;
+      assert.strictEqual(
+        res.status,
+        expected,
+        `Status should be: ${expected}. Actual: ${res.status}`
+      );
+
+      const token = await res.json();
+      verifyJwt(token);
     });
   });
 });

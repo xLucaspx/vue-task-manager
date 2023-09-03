@@ -1,10 +1,24 @@
 const { UniqueConstraintError, ValidationError } = require("sequelize");
-const { ConflictError, BadRequestError } = require("../errors");
+const { ConflictError, BadRequestError, NotFoundError } = require("../errors");
 const Services = require("./Services");
 
 class UserServices extends Services {
   constructor() {
     super("User");
+  }
+
+  async getUserLogin(filter) {
+    try {
+      const user = await this.model.scope("login").findOne({
+        where: { ...filter },
+      });
+
+      if (user) return user;
+
+      throw new NotFoundError("User not found!");
+    } catch (error) {
+      throw error;
+    }
   }
 
   async createUser(user) {
