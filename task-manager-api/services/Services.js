@@ -7,6 +7,17 @@ class Services {
     this.model = db[modelName];
   }
 
+  async getRecords(where = {}) {
+    try {
+      return await this.model.findAll({ where: { ...where } });
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw new BadRequestError("Invalid where clause!");
+      }
+      throw error;
+    }
+  }
+
   async getOneRecord(where = {}) {
     try {
       const record = await this.model.findOne({ where: { ...where } });
@@ -32,6 +43,14 @@ class Services {
         );
       }
 
+      throw error;
+    }
+  }
+
+  async deleteRecords(where = {}) {
+    try {
+      return await this.model.destroy({ where: { ...where } });
+    } catch (error) {
       throw error;
     }
   }
