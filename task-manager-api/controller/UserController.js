@@ -51,6 +51,25 @@ class UserController {
       return res.status(error.status || 500).json({ error: error.message });
     }
   }
+
+  static async getUserById(req, res) {
+    const { id } = req.params;
+
+    try {
+      const token = verifyJwt(req.headers.authorization);
+
+      if (id != token.id) {
+        throw new UnauthorizedError(
+          "It's not possible to fetch information from other users!"
+        );
+      }
+
+      const user = await userServices.getOneRecord({ id });
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(error.status || 500).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = UserController;
