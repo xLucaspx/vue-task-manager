@@ -636,4 +636,119 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       }
     });
   });
+
+  describe("DELETE /user/:id", () => {
+    const user = {
+      id: 4,
+      username: "test-user",
+      password: "#testUser01",
+    };
+
+    it("should return 401 (unauthorized) without access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with invalid/malformed access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer json.web.token",
+        },
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with another user's token", async () => {
+      const token = await getToken(BASE_URL);
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: "It's not possible to delete other users' accounts!",
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 204 (no content) when user is successfully deleted", async () => {
+      const token = await getToken(BASE_URL, {
+        user: user.username,
+        password: user.password,
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      const expected = 204;
+      assert.strictEqual(
+        res.status,
+        expected,
+        `Status should be: ${expected}. Actual: ${res.status}`
+      );
+    });
+  });
 });

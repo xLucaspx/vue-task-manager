@@ -1,10 +1,22 @@
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 const { ConflictError, BadRequestError, NotFoundError } = require("../errors");
 const Services = require("./Services");
+const { deleteUser } = require("../controller/UserController");
 
 class UserServices extends Services {
   constructor() {
     super("User");
+  }
+
+  async getUserById(id) {
+    try {
+      return await this.getOneRecord({ id });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw new NotFoundError("User not found!");
+      }
+      throw error;
+    }
   }
 
   async getUserLogin(filter) {
@@ -74,6 +86,15 @@ class UserServices extends Services {
           );
         }
       }
+      throw error;
+    }
+  }
+
+  async deleteUser(id) {
+    try {
+      const user = await this.getUserById(id);
+      await user.destroy();
+    } catch (error) {
       throw error;
     }
   }

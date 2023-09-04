@@ -7,6 +7,8 @@ router
   .get("/user/:id", UserController.getUserById)
   .post("/user", UserController.createUser)
   .post("/user/login", UserController.userLogin)
-  .post("/user/auth", UserController.authenticateUser);
+  .post("/user/auth", UserController.authenticateUser)
+  // .put("/user/:id")
+  .delete("/user/:id", UserController.deleteUser);
 
 module.exports = router;
