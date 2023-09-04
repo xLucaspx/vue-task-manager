@@ -47,20 +47,26 @@ class TaskServices extends Services {
     }
   }
 
-  // async updateUser(id, data) {
-  //   try {
-  //     const user = await this.getUserById(id);
+  async updateTask(id, data, userId) {
+    try {
+      const task = await this.getTaskById(id, userId);
 
-  //     if (data.id && data.id !== user.id) {
-  //       throw new UnauthorizedError("It's not allowed to alter the user's ID!");
-  //     }
+      if (data.id && data.id !== task.id) {
+        throw new UnauthorizedError("It's not allowed to alter the task's ID!");
+      }
 
-  //     return await user.update(data);
-  //   } catch (error) {
-  //     this.#checkUserValidationError(error);
-  //     throw error;
-  //   }
-  // }
+      if (data.userId && data.userId !== task.userId) {
+        throw new UnauthorizedError(
+          "It's not allowed to alter the task's user ID!"
+        );
+      }
+
+      return await task.update(data);
+    } catch (error) {
+      this.#checkTaskValidationError(error);
+      throw error;
+    }
+  }
 
   async deleteTaskById(id, userId) {
     try {

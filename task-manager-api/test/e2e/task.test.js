@@ -316,386 +316,267 @@ describe("Task Manager API E2E Test Suite - Tasks", () => {
     });
   });
 
-  // describe("PUT /user/:id", () => {
-  //   const user = {
-  //     id: 4,
-  //     name: "Updated Test user",
-  //     username: "fresh-test",
-  //     email: "test@newmail.com",
-  //     password: "#newPassword01",
-  //   };
+  describe("PUT /tasks/:id", () => {
+    const task = {
+      id: 7,
+      description: "Test the PUT /tasks/:id route",
+      completed: true,
+      userId: TEST_USER.id,
+    };
 
-  //   it("should return 400 (bad request) with an invalid username", async () => {
-  //     const body = Object.assign({}, user, { username: "" });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
+    it("should return 400 (bad request) with an invalid description", async () => {
+      const body = Object.assign({}, task, { description: "" });
+      const token = await getToken(BASE_URL, {
+        user: TEST_USER.username,
+        password: TEST_USER.password,
+      });
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
 
-  //     {
-  //       const expected = 400;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: `The value "${body.username}" is not a valid username!`,
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      {
+        const expected = 400;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The value "${body.description}" is not a valid description!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //   it("should return 400 (bad request) with an invalid email", async () => {
-  //     const body = Object.assign({}, user, { email: "user@email" });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
+    it("should return 401 (unauthorized) without access token", async () => {
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(task),
+      });
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //     {
-  //       const expected = 400;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: `The value "${body.email}" is not a valid e-mail address!`,
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+    it("should return 401 (unauthorized) with invalid/malformed access token", async () => {
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer json.web.token",
+        },
+        body: JSON.stringify(task),
+      });
 
-  //   it("should return 400 (bad request) with an invalid name", async () => {
-  //     const body = Object.assign({}, user, { name: null });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
+    it("should return 401 (unauthorized) with another user's token", async () => {
+      const token = await getToken(BASE_URL);
 
-  //     {
-  //       const expected = 400;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: `The value "${body.name}" does not match the name requirements!`,
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(task),
+      });
 
-  //   it("should return 400 (bad request) with an invalid password", async () => {
-  //     const body = Object.assign({}, user, { password: "123" });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: "It's not possible to fetch another users' tasks!",
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
+    it("should return 401 (unauthorized) when trying to modify the task's id", async () => {
+      const body = Object.assign({}, task, { id: 15 });
+      const token = await getToken(BASE_URL, {
+        user: TEST_USER.username,
+        password: TEST_USER.password,
+      });
 
-  //     {
-  //       const expected = 400;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: "Password doesn't meet the minimum requirements!",
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
 
-  //   it("should return 401 (unauthorized) without access token", async () => {
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(user),
-  //     });
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "It's not allowed to alter the task's ID!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //     {
-  //       const expected = 401;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = { error: "Invalid access token!" };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+    it("should return 401 (unauthorized) when trying to modify the task's userId", async () => {
+      const body = Object.assign({}, task, { userId: 1 });
+      const token = await getToken(BASE_URL, {
+        user: TEST_USER.username,
+        password: TEST_USER.password,
+      });
 
-  //   it("should return 401 (unauthorized) with invalid/malformed access token", async () => {
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: "Bearer json.web.token",
-  //       },
-  //       body: JSON.stringify(user),
-  //     });
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
 
-  //     {
-  //       const expected = 401;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = { error: "Invalid access token!" };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: "It's not allowed to alter the task's user ID!",
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //   it("should return 401 (unauthorized) with another user's token", async () => {
-  //     const token = await getToken(BASE_URL);
+    it("should return 404 (not found) with an id that's not registered", async () => {
+      const token = await getToken(BASE_URL);
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(user),
-  //     });
+      const res = await fetch(`${BASE_URL}/tasks/50`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
 
-  //     {
-  //       const expected = 401;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: "It's not possible to modify other users' information!",
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      {
+        const expected = 404;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Task not found!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
 
-  //   it("should return 401 (unauthorized) when trying to modify the user's id", async () => {
-  //     const body = Object.assign({}, user, { id: 1 });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
+    it("should return 200 (ok) and the updated task", async () => {
+      const token = await getToken(BASE_URL, {
+        user: TEST_USER.username,
+        password: TEST_USER.password,
+      });
 
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
+      const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(task),
+      });
 
-  //     {
-  //       const expected = 401;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = { error: "It's not allowed to alter the user's ID!" };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
+      const expected = 200;
+      assert.strictEqual(
+        res.status,
+        expected,
+        `Status should be: ${expected}. Actual: ${res.status}`
+      );
 
-  //   it("should return 409 (conflict) with an username that's already regitered", async () => {
-  //     const body = Object.assign({}, user, { username: "betty01" });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
-
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
-
-  //     {
-  //       const expected = 409;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: `The username ${body.username} is already registered!`,
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
-
-  //   it("should return 409 (conflict) with an email that's already regitered", async () => {
-  //     const body = Object.assign({}, user, { email: "john@email.com" });
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
-
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(body),
-  //     });
-
-  //     {
-  //       const expected = 409;
-  //       assert.strictEqual(
-  //         res.status,
-  //         expected,
-  //         `Status should be: ${expected}. Actual: ${res.status}`
-  //       );
-  //     }
-  //     {
-  //       const expected = {
-  //         error: `The email ${body.email} is already registered!`,
-  //       };
-  //       const actual = await res.json();
-  //       assert.deepStrictEqual(
-  //         actual,
-  //         expected,
-  //         `Error message should be: "${expected.error}". Actual: "${actual.error}"`
-  //       );
-  //     }
-  //   });
-
-  //   it("should return 200 (ok) and the updated user", async () => {
-  //     const token = await getToken(BASE_URL, {
-  //       user: "test-user",
-  //       password: "#testUser01",
-  //     });
-
-  //     const res = await fetch(`${BASE_URL}/tasks/${task.id}`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(user),
-  //     });
-
-  //     const expected = 200;
-  //     assert.strictEqual(
-  //       res.status,
-  //       expected,
-  //       `Status should be: ${expected}. Actual: ${res.status}`
-  //     );
-
-  //     const actual = await res.json();
-  //     assert.ok(actual, `Should've returned the registered user`);
-  //   });
-  // });
+      const actual = await res.json();
+      assert.ok(actual, `Should've returned the updated task`);
+    });
+  });
 
   describe("GET /tasks", () => {
     it("should return 401 (unauthorized) without access token", async () => {
@@ -781,8 +662,8 @@ describe("Task Manager API E2E Test Suite - Tasks", () => {
         const expected = [
           {
             id: 7,
-            description: "Test the POST /tasks route",
-            completed: false,
+            description: "Test the PUT /tasks/:id route",
+            completed: true,
             userId: TEST_USER.id,
           },
           {
@@ -913,6 +794,36 @@ describe("Task Manager API E2E Test Suite - Tasks", () => {
       }
     });
 
+    it("should return 404 (not found) with an id that's not registered", async () => {
+      const token = await getToken(BASE_URL);
+
+      const res = await fetch(`${BASE_URL}/tasks/50`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      {
+        const expected = 404;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Task not found!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
     it("should return 200 (ok) and the referred task when passed valid access token", async () => {
       const token = await getToken(BASE_URL, {
         user: TEST_USER.username,
@@ -1022,6 +933,36 @@ describe("Task Manager API E2E Test Suite - Tasks", () => {
         const expected = {
           error: "It's not possible to fetch another users' tasks!",
         };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 404 (not found) with an id that's not registered", async () => {
+      const token = await getToken(BASE_URL);
+
+      const res = await fetch(`${BASE_URL}/tasks/50`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      {
+        const expected = 404;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Task not found!" };
         const actual = await res.json();
         assert.deepStrictEqual(
           actual,

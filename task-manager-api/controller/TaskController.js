@@ -53,32 +53,19 @@ class TaskController {
     }
   }
 
-  // static async updateUser(req, res) {
-  //   const { id } = req.params;
-  //   const data = req.body;
+  static async updateTask(req, res) {
+    const { id } = req.params;
+    const data = req.body;
 
-  //   try {
-  //     const token = verifyJwt(req.headers.authorization);
+    try {
+      const token = verifyJwt(req.headers.authorization);
 
-  //     if (id != token.id) {
-  //       throw new UnauthorizedError(
-  //         "It's not possible to modify other users' information!"
-  //       );
-  //     }
-
-  //     if (data.password) {
-  //       const { hash, salt } = generateHashAndSalt(data.password);
-  //       data.passwordHash = hash;
-  //       data.salt = salt;
-  //       delete data.password;
-  //     }
-
-  //     const user = await taskServices.updateUser(id, data);
-  //     return res.status(200).json(user);
-  //   } catch (error) {
-  //     return res.status(error.status || 500).json({ error: error.message });
-  //   }
-  // }
+      const task = await taskServices.updateTask(id, data, token.id);
+      return res.status(200).json(task);
+    } catch (error) {
+      return res.status(error.status || 500).json({ error: error.message });
+    }
+  }
 
   static async deleteTaskById(req, res) {
     const { id } = req.params;

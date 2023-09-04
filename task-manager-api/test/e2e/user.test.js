@@ -886,7 +886,7 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       );
 
       const actual = await res.json();
-      assert.ok(actual, `Should've returned the registered user`);
+      assert.ok(actual, `Should've returned the updated user`);
     });
   });
 
