@@ -1,7 +1,7 @@
 const { UnauthorizedError } = require("../errors");
 const UserServices = require("../services/UserServices");
 const { generateHashAndSalt, verifyPassword } = require("../utils/crypto");
-const { createJwt } = require("../utils/jwt");
+const { createJwt, verifyJwt } = require("../utils/jwt");
 
 const userServices = new UserServices();
 
@@ -37,6 +37,15 @@ class UserController {
       }
 
       const token = createJwt({ id, name });
+      return res.status(200).json(token);
+    } catch (error) {
+      return res.status(error.status || 500).json({ error: error.message });
+    }
+  }
+
+  static async authenticateUser(req, res) {
+    try {
+      const token = verifyJwt(req.headers.authorization);
       return res.status(200).json(token);
     } catch (error) {
       return res.status(error.status || 500).json({ error: error.message });

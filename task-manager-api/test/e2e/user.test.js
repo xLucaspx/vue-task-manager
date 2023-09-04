@@ -2,6 +2,7 @@ const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
 const app = require("../../server");
 const { verifyJwt } = require("../../utils/jwt");
+const getToken = require("./getToken");
 
 describe("Task Manager API E2E Test Suite - Users", () => {
   let BASE_URL = "";
@@ -28,8 +29,6 @@ describe("Task Manager API E2E Test Suite - Users", () => {
   after((done) => _server.close(done));
 
   describe("POST /user", () => {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json" };
     const user = {
       id: 4,
       name: "Test user",
@@ -42,8 +41,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { username: "" });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -72,8 +71,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { email: "user@email" });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -102,8 +101,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { name: null });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -132,8 +131,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { password: "123" });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -162,8 +161,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { id: 1 });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -190,8 +189,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { username: "betty01" });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -220,8 +219,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { email: "john@email.com" });
 
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -248,8 +247,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
 
     it("should return 201 (created) and the registered user", async () => {
       const res = await fetch(`${BASE_URL}/user`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
       });
 
@@ -266,8 +265,6 @@ describe("Task Manager API E2E Test Suite - Users", () => {
   });
 
   describe("POST /user/login", () => {
-    const method = "POST";
-    const headers = { "Content-Type": "application/json" };
     const user = {
       user: "test-user",
       password: "#testUser01",
@@ -277,8 +274,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { password: "123" });
 
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -308,8 +305,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       });
 
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -336,8 +333,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { user: "newuser" });
 
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -364,8 +361,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { user: "invalid@email.com" });
 
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -390,8 +387,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
 
     it("should return 200 (ok) and the access token with correct username and password", async () => {
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(user),
       });
 
@@ -410,8 +407,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
       const body = Object.assign({}, user, { user: "testuser@email.com" });
 
       const res = await fetch(`${BASE_URL}/user/login`, {
-        method,
-        headers,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -424,6 +421,91 @@ describe("Task Manager API E2E Test Suite - Users", () => {
 
       const token = await res.json();
       verifyJwt(token);
+    });
+  });
+
+  describe("POST /user/auth", () => {
+    it("should return 401 (unauthorized) without access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with invalid/malformed access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/auth`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer json.web.token",
+        },
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 200 (ok) and payload when passed a valid token", async () => {
+      const token = await getToken(BASE_URL);
+
+      const res = await fetch(`${BASE_URL}/user/auth`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      });
+
+      {
+        const expected = 200;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = verifyJwt(token);
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Should've returned token payload. Returned: ${actual}`
+        );
+      }
     });
   });
 });
