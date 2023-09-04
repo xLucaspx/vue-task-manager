@@ -64,7 +64,7 @@ module.exports = (sequelize, DataTypes) => {
       freezeTableName: true,
       defaultScope: {
         attributes: ["id", "name", "email", "username"],
-        include: ["Task"],
+        include: ["Tasks"],
       },
       scopes: {
         login: {
