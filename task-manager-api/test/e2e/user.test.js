@@ -1,8 +1,8 @@
 const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
-const app = require("../../server");
-const { verifyJwt } = require("../../utils/jwt");
 const getToken = require("./getToken");
+const { verifyJwt } = require("../../utils/jwt");
+const app = require("../../server");
 
 describe("Task Manager API E2E Test Suite - Users", () => {
   let BASE_URL = "";

@@ -104,11 +104,11 @@ class TaskServices extends Services {
         );
       }
 
-      if (errorData.path === "completed") {
-        throw new BadRequestError(
-          `The value "${errorData.value}" is not valid for the field "completed"!`
-        );
-      }
+      // if (errorData.path === "completed") {
+      //   throw new BadRequestError(
+      //     `The value "${errorData.value}" is not valid for the field "completed"!`
+      //   );
+      // }
     }
   }
 }
