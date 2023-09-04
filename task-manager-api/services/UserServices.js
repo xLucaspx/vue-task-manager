@@ -1,7 +1,11 @@
 const { UniqueConstraintError, ValidationError } = require("sequelize");
-const { ConflictError, BadRequestError, NotFoundError } = require("../errors");
+const {
+  ConflictError,
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+} = require("../errors");
 const Services = require("./Services");
-const { deleteUser } = require("../controller/UserController");
 
 class UserServices extends Services {
   constructor() {
@@ -37,55 +41,23 @@ class UserServices extends Services {
     try {
       return await this.createRecord(user);
     } catch (error) {
-      if (error instanceof UniqueConstraintError) {
-        const { fields } = error;
+      this.#checkUserValidationError(error);
 
-        if (!fields) {
-          throw new BadRequestError(
-            "Please, check if all the fields are filled correctly!"
-          );
-        }
+      throw error;
+    }
+  }
 
-        if (fields.email) {
-          throw new ConflictError(
-            `The email ${fields.email} is already registered!`
-          );
-        }
+  async updateUser(id, data) {
+    try {
+      const user = await this.getUserById(id);
 
-        if (fields.username) {
-          throw new ConflictError(
-            `The username ${fields.username} is already registered!`
-          );
-        }
+      if (data.id && data.id !== user.id) {
+        throw new UnauthorizedError("It's not allowed to alter the user's ID!");
       }
 
-      if (error instanceof ValidationError) {
-        if (!error.errors || error.errors.length === 0) {
-          throw new BadRequestError(
-            "Please, check if all the fields are filled correctly!"
-          );
-        }
-
-        const errorData = error.errors.pop();
-
-        if (errorData.path === "email") {
-          throw new BadRequestError(
-            `The value "${errorData.value}" is not a valid e-mail address!`
-          );
-        }
-
-        if (errorData.path === "username") {
-          throw new BadRequestError(
-            `The value "${errorData.value}" is not a valid username!`
-          );
-        }
-
-        if (errorData.path === "name") {
-          throw new BadRequestError(
-            `The value "${errorData.value}" does not match the name requirements!`
-          );
-        }
-      }
+      return await user.update(data);
+    } catch (error) {
+      this.#checkUserValidationError(error);
       throw error;
     }
   }
@@ -96,6 +68,56 @@ class UserServices extends Services {
       await user.destroy();
     } catch (error) {
       throw error;
+    }
+  }
+
+  #checkUserValidationError(error) {
+    if (error instanceof UniqueConstraintError) {
+      const { fields } = error;
+
+      if (fields.email) {
+        throw new ConflictError(
+          `The email ${fields.email} is already registered!`
+        );
+      }
+
+      if (fields.username) {
+        throw new ConflictError(
+          `The username ${fields.username} is already registered!`
+        );
+      }
+
+      throw new BadRequestError(
+        "Please, check if all the fields are filled correctly!"
+      );
+    }
+
+    if (error instanceof ValidationError) {
+      if (!error.errors || error.errors.length === 0) {
+        throw new BadRequestError(
+          "Please, check if all the fields are filled correctly!"
+        );
+      }
+
+      const errorData = error.errors.pop();
+
+      if (errorData.path === "email") {
+        throw new BadRequestError(
+          `The value "${errorData.value}" is not a valid e-mail address!`
+        );
+      }
+
+      if (errorData.path === "username") {
+        throw new BadRequestError(
+          `The value "${errorData.value}" is not a valid username!`
+        );
+      }
+
+      if (errorData.path === "name") {
+        throw new BadRequestError(
+          `The value "${errorData.value}" does not match the name requirements!`
+        );
+      }
     }
   }
 }

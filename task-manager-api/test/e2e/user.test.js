@@ -509,12 +509,393 @@ describe("Task Manager API E2E Test Suite - Users", () => {
     });
   });
 
+  describe("PUT /user/:id", () => {
+    const user = {
+      id: 4,
+      name: "Updated Test user",
+      username: "fresh-test",
+      email: "test@newmail.com",
+      password: "#newPassword01",
+    };
+
+    it("should return 400 (bad request) with an invalid username", async () => {
+      const body = Object.assign({}, user, { username: "" });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 400;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The value "${body.username}" is not a valid username!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 400 (bad request) with an invalid email", async () => {
+      const body = Object.assign({}, user, { email: "user@email" });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 400;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The value "${body.email}" is not a valid e-mail address!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 400 (bad request) with an invalid name", async () => {
+      const body = Object.assign({}, user, { name: null });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 400;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The value "${body.name}" does not match the name requirements!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 400 (bad request) with an invalid password", async () => {
+      const body = Object.assign({}, user, { password: "123" });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 400;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: "Password doesn't meet the minimum requirements!",
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) without access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(user),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with invalid/malformed access token", async () => {
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer json.web.token",
+        },
+        body: JSON.stringify(user),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "Invalid access token!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) with another user's token", async () => {
+      const token = await getToken(BASE_URL);
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(user),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: "It's not possible to modify other users' information!",
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 401 (unauthorized) when trying to modify the user's id", async () => {
+      const body = Object.assign({}, user, { id: 1 });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 401;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = { error: "It's not allowed to alter the user's ID!" };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 409 (conflict) with an username that's already regitered", async () => {
+      const body = Object.assign({}, user, { username: "betty01" });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 409;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The username ${body.username} is already registered!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 409 (conflict) with an email that's already regitered", async () => {
+      const body = Object.assign({}, user, { email: "john@email.com" });
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      {
+        const expected = 409;
+        assert.strictEqual(
+          res.status,
+          expected,
+          `Status should be: ${expected}. Actual: ${res.status}`
+        );
+      }
+      {
+        const expected = {
+          error: `The email ${body.email} is already registered!`,
+        };
+        const actual = await res.json();
+        assert.deepStrictEqual(
+          actual,
+          expected,
+          `Error message should be: "${expected.error}". Actual: "${actual.error}"`
+        );
+      }
+    });
+
+    it("should return 200 (ok) and the updated user", async () => {
+      const token = await getToken(BASE_URL, {
+        user: "test-user",
+        password: "#testUser01",
+      });
+
+      const res = await fetch(`${BASE_URL}/user/${user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(user),
+      });
+
+      const expected = 200;
+      assert.strictEqual(
+        res.status,
+        expected,
+        `Status should be: ${expected}. Actual: ${res.status}`
+      );
+
+      const actual = await res.json();
+      assert.ok(actual, `Should've returned the registered user`);
+    });
+  });
+
   describe("GET /user/:id", () => {
     const user = {
       id: 4,
-      name: "Test user",
-      email: "testuser@email.com",
-      username: "test-user",
+      name: "Updated Test user",
+      email: "test@newmail.com",
+      username: "fresh-test",
       Tasks: [],
     };
 
@@ -606,7 +987,7 @@ describe("Task Manager API E2E Test Suite - Users", () => {
     it("should return 200 (ok) and user info when passed valid access token", async () => {
       const token = await getToken(BASE_URL, {
         user: user.email,
-        password: "#testUser01",
+        password: "#newPassword01",
       });
 
       const res = await fetch(`${BASE_URL}/user/${user.id}`, {
@@ -640,8 +1021,8 @@ describe("Task Manager API E2E Test Suite - Users", () => {
   describe("DELETE /user/:id", () => {
     const user = {
       id: 4,
-      username: "test-user",
-      password: "#testUser01",
+      username: "fresh-test",
+      password: "#newPassword01",
     };
 
     it("should return 401 (unauthorized) without access token", async () => {

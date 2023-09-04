@@ -6,6 +6,25 @@ const { createJwt, verifyJwt } = require("../utils/jwt");
 const userServices = new UserServices();
 
 class UserController {
+  static async getUserById(req, res) {
+    const { id } = req.params;
+
+    try {
+      const token = verifyJwt(req.headers.authorization);
+
+      if (id != token.id) {
+        throw new UnauthorizedError(
+          "It's not possible to fetch information from other users!"
+        );
+      }
+
+      const user = await userServices.getUserById(id);
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(error.status || 500).json({ error: error.message });
+    }
+  }
+
   static async createUser(req, res) {
     const user = req.body;
 
@@ -52,19 +71,27 @@ class UserController {
     }
   }
 
-  static async getUserById(req, res) {
+  static async updateUser(req, res) {
     const { id } = req.params;
+    const data = req.body;
 
     try {
       const token = verifyJwt(req.headers.authorization);
 
       if (id != token.id) {
         throw new UnauthorizedError(
-          "It's not possible to fetch information from other users!"
+          "It's not possible to modify other users' information!"
         );
       }
 
-      const user = await userServices.getUserById(id);
+      if (data.password) {
+        const { hash, salt } = generateHashAndSalt(data.password);
+        data.passwordHash = hash;
+        data.salt = salt;
+        delete data.password;
+      }
+
+      const user = await userServices.updateUser(id, data);
       return res.status(200).json(user);
     } catch (error) {
       return res.status(error.status || 500).json({ error: error.message });

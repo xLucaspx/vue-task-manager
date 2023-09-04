@@ -8,7 +8,7 @@ router
   .post("/user", UserController.createUser)
   .post("/user/login", UserController.userLogin)
   .post("/user/auth", UserController.authenticateUser)
-  // .put("/user/:id")
+  .put("/user/:id", UserController.updateUser)
   .delete("/user/:id", UserController.deleteUser);
 
 module.exports = router;
