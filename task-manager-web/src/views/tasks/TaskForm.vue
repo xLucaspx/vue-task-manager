@@ -105,6 +105,7 @@ export default defineComponent({
           const task: Task = {
             id: Number(id),
             description: description.value,
+            completed: false,
           };
 
           await taskStore.update(task);

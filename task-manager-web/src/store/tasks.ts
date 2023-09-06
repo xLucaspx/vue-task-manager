@@ -51,6 +51,18 @@ export const useTaskStore = defineStore({
       await this.getTasks();
     },
 
+    async toggleCompleted(
+      id: Task["id"],
+      completed: Task["completed"]
+    ): Promise<void> {
+      const token = getCookie("jwt");
+
+      if (!token) throw new Error("Authentication is required to edit tasks!");
+
+      await taskController.toggleCompleted(id, completed, token);
+      await this.getTasks();
+    },
+
     async deleteById(id: Task["id"]) {
       const token = getCookie("jwt");
 

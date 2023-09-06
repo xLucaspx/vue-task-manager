@@ -58,7 +58,7 @@
           </div>
         </v-card-title>
 
-        <v-table>
+        <v-table density="compact">
           <thead>
             <tr>
               <th>Description</th>
@@ -68,7 +68,9 @@
 
           <tbody>
             <tr v-for="task in tasks" :key="task.id">
-              <td>{{ task.description }}</td>
+              <td :class="task.completed ? 'row__completed' : ''">
+                {{ task.description }}
+              </td>
               <td class="table__buttons">
                 <v-btn
                   :variant="task.completed ? 'outlined' : 'flat'"
@@ -76,6 +78,7 @@
                   prepend-icon="mdi-check-outline"
                   size="small"
                   type="button"
+                  @click="toggleCompleted(task.id, !task.completed)"
                   :title="
                     task.completed
                       ? 'Mark as not completed'
@@ -151,6 +154,22 @@ export default defineComponent({
 
     const tasks = computed(() => taskStore.tasks);
 
+    const toggleCompleted = async (
+      id: Task["id"],
+      completed: Task["completed"]
+    ) => {
+      try {
+        await taskStore.toggleCompleted(id, completed);
+      } catch (error) {
+        let message = "An unexpected error has ocurred";
+
+        if (error instanceof Error) message = error.message;
+
+        alertStore.alert({ type: AlertTypes.ERROR, text: message });
+        console.error(error);
+      }
+    };
+
     const deleteTask = async (id: Task["id"]): Promise<void> => {
       try {
         await taskStore.deleteById(id);
@@ -210,6 +229,7 @@ export default defineComponent({
     return {
       tasks,
       logout,
+      toggleCompleted,
       deleteTask,
       deleteCompleted,
       deleteAll,
@@ -238,5 +258,10 @@ export default defineComponent({
 .table__buttons {
   justify-content: flex-end;
   align-items: center;
+}
+
+.row__completed {
+  text-decoration: line-through;
+  color: darkgrey;
 }
 </style>
