@@ -15,8 +15,6 @@ export const useAlertStore = defineStore({
       alert.id = new Date().getTime();
       this.alerts.push(alert);
 
-      console.log(this.alerts);
-
       setTimeout(() => this.removeAlert(alert.id), 3750);
     },
 

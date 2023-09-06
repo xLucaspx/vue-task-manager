@@ -24,6 +24,16 @@ export const useTaskStore = defineStore({
       this.tasks = tasks;
     },
 
+    async createTask(task: Task): Promise<void> {
+      const token = getCookie("jwt");
+
+      if (!token)
+        throw new Error("Authentication is required to create tasks!");
+
+      await taskController.createTask(task, token);
+      await this.getTasks();
+    },
+
     async deleteCompleted(): Promise<void> {
       const token = getCookie("jwt");
 

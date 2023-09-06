@@ -95,6 +95,8 @@ import { useRouter } from "vue-router";
 import AppBar from "@/components/AppBar.vue";
 import User from "@/interfaces/User";
 import UserController from "@/controller/UserController";
+import { useAlertStore } from "@/store/alerts";
+import { AlertTypes } from "@/interfaces/Alert";
 
 export default defineComponent({
   name: "UserForm",
@@ -104,6 +106,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const alertStore = useAlertStore();
 
     const name = ref("");
     const email = ref("");
@@ -136,7 +139,7 @@ export default defineComponent({
         : "At least 8 characters, one uppercase letter, one lowercase letter, one number and one special character";
     };
 
-    const createUser = async () => {
+    const createUser = async (): Promise<void> => {
       const user: User = {
         name: name.value,
         email: email.value,
@@ -145,7 +148,10 @@ export default defineComponent({
       };
 
       await new UserController().createUser(user);
-      // notify
+      alertStore.alert({
+        type: AlertTypes.SUCCESS,
+        text: "Registration completed successfully!",
+      });
       router.push("/login");
     };
 

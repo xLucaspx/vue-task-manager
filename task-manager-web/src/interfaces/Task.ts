@@ -1,6 +1,8 @@
+import User from "./User";
+
 export default interface Task {
-  id: number | string;
+  id?: number | string;
   description: string;
   completed: boolean;
-  userId: number;
+  userId: User["id"];
 }

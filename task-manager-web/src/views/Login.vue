@@ -32,7 +32,7 @@
         <v-container class="form__buttons form__container">
           <v-btn
             variant="flat"
-            color="blue-darken-1"
+            color="green-darken-2"
             size="large"
             prepend-icon="mdi-login-variant"
             type="submit"
