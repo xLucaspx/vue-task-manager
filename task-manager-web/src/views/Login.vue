@@ -48,6 +48,7 @@
               prepend-icon="mdi-account-plus-outline"
               type="button"
               class="button"
+              title="Create an account"
               >Register
             </v-btn>
           </router-link>

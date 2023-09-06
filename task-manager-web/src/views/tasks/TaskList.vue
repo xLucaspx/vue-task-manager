@@ -12,6 +12,7 @@
                   color="green-darken-2"
                   prepend-icon="mdi-checkbox-marked-circle-plus-outline"
                   type="button"
+                  title="Create a new task"
                   >New task
                 </v-btn>
               </RouterLink>
@@ -22,6 +23,7 @@
                 prepend-icon="mdi-checkbox-multiple-outline"
                 type="button"
                 @click="deleteCompleted"
+                title="Delete all tasks marked as completed"
                 >Delete completed
               </v-btn>
 
@@ -31,6 +33,7 @@
                 prepend-icon="mdi-trash-can-outline"
                 type="button"
                 @click="deleteAll"
+                title="Delete all tasks!"
                 >Delete all
               </v-btn>
             </div>
@@ -42,6 +45,7 @@
                   color="blue-darken-1"
                   prepend-icon="mdi-account-edit-outline"
                   type="button"
+                  title="Edit your information"
                   >Account
                 </v-btn>
               </RouterLink>
