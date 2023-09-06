@@ -105,6 +105,7 @@
                   prepend-icon="mdi-delete-forever-outline"
                   size="small"
                   title="Delete task"
+                  @click="deleteTask(task.id)"
                   >Delete
                 </v-btn>
               </td>
@@ -124,13 +125,11 @@ import { AlertTypes } from "@/interfaces/Alert";
 import { useAlertStore } from "@/store/alerts";
 import { useTaskStore } from "@/store/tasks";
 import { useUserStore } from "@/store/user";
+import Task from "@/interfaces/Task";
 
 export default defineComponent({
   name: "TaskList",
   components: { AppBar },
-  data() {
-    return {};
-  },
   async setup() {
     const router = useRouter();
     const userStore = useUserStore();
@@ -152,12 +151,55 @@ export default defineComponent({
 
     const tasks = computed(() => taskStore.tasks);
 
+    const deleteTask = async (id: Task["id"]): Promise<void> => {
+      try {
+        await taskStore.deleteById(id);
+        alertStore.alert({
+          type: AlertTypes.SUCCESS,
+          text: "The selected task was deleted!",
+        });
+      } catch (error) {
+        let message = "An unexpected error has ocurred";
+
+        if (error instanceof Error) message = error.message;
+
+        alertStore.alert({ type: AlertTypes.ERROR, text: message });
+        console.error(error);
+      }
+    };
+
     const deleteCompleted = async (): Promise<void> => {
-      await taskStore.deleteCompleted();
+      try {
+        await taskStore.deleteCompleted();
+        alertStore.alert({
+          type: AlertTypes.SUCCESS,
+          text: "All completed tasks were deleted!",
+        });
+      } catch (error) {
+        let message = "An unexpected error has ocurred";
+
+        if (error instanceof Error) message = error.message;
+
+        alertStore.alert({ type: AlertTypes.ERROR, text: message });
+        console.error(error);
+      }
     };
 
     const deleteAll = async (): Promise<void> => {
-      await taskStore.deleteAll();
+      try {
+        await taskStore.deleteAll();
+        alertStore.alert({
+          type: AlertTypes.SUCCESS,
+          text: "All tasks were deleted!",
+        });
+      } catch (error) {
+        let message = "An unexpected error has ocurred";
+
+        if (error instanceof Error) message = error.message;
+
+        alertStore.alert({ type: AlertTypes.ERROR, text: message });
+        console.error(error);
+      }
     };
 
     const logout = (): void => {
@@ -168,6 +210,7 @@ export default defineComponent({
     return {
       tasks,
       logout,
+      deleteTask,
       deleteCompleted,
       deleteAll,
     };

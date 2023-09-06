@@ -51,6 +51,16 @@ export const useTaskStore = defineStore({
       await this.getTasks();
     },
 
+    async deleteById(id: Task["id"]) {
+      const token = getCookie("jwt");
+
+      if (!token)
+        throw new Error("Authentication is required to delete tasks!");
+
+      await taskController.deleteTask(id, token);
+      await this.getTasks();
+    },
+
     async deleteCompleted(): Promise<void> {
       const token = getCookie("jwt");
 
