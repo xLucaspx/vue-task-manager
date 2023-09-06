@@ -1,8 +1,9 @@
 import Login from "@/views/Login.vue";
 import Tasks from "@/views/Tasks.vue";
+import User from "@/views/User.vue";
 import TaskList from "@/views/tasks/TaskList.vue";
 import TaskForm from "@/views/tasks/TaskForm.vue";
-import UserForm from "@/views/UserForm.vue";
+import UserForm from "@/views/user/UserForm.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
@@ -23,9 +24,21 @@ const routes = [
     ],
   },
   {
-    path: "/register",
-    name: "Create account",
-    component: UserForm,
+    path: "/user",
+    name: "User",
+    component: User,
+    children: [
+      {
+        path: "edit",
+        name: "Edit user",
+        component: UserForm,
+      },
+      {
+        path: "register",
+        name: "Create account",
+        component: UserForm,
+      },
+    ],
   },
   {
     path: "/login",

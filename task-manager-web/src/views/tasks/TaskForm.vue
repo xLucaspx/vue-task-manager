@@ -10,7 +10,7 @@
             class="input"
             label="Description"
             name="description"
-            maxlength="75"
+            maxlength="125"
             v-model="description"
             variant="outlined"
             :rules="[required, size]"

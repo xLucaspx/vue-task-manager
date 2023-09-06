@@ -40,7 +40,7 @@
             >Login</v-btn
           >
 
-          <router-link to="/register" class="link">
+          <router-link to="/user/register" class="link">
             <v-btn
               variant="outlined"
               color="blue-darken-1"

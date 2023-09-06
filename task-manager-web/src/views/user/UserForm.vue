@@ -1,9 +1,11 @@
 <template>
   <v-app>
-    <AppBar><template v-slot:title>Task Manager</template></AppBar>
+    <AppBar
+      ><template v-slot:title>{{ appBarTitle }}</template></AppBar
+    >
     <v-main class="container">
-      <h1 class="title">Register</h1>
-      <v-form @submit.prevent="createUser">
+      <h1 class="title">{{ title }}</h1>
+      <v-form @submit.prevent="saveUser">
         <v-container class="form__container">
           <v-text-field
             class="input"
@@ -55,7 +57,13 @@
             variant="outlined"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="show = !show"
-            :rules="[required, isValidPassword]"
+            :persistent-hint="id ? true : false"
+            :hint="
+              id
+                ? 'This field is only required if you want to change your password'
+                : 'At least 8 characters, one uppercase letter, one lowercase letter, one number and one special character'
+            "
+            :rules="[isValidPassword, id ? '' : required]"
             clearable
             required
           ></v-text-field>
@@ -66,13 +74,15 @@
             variant="flat"
             color="blue-darken-1"
             size="large"
-            prepend-icon="mdi-account-plus-outline"
+            :prepend-icon="
+              id ? 'mdi-content-save-edit-outline' : 'mdi-account-plus-outline'
+            "
             type="submit"
             class="button"
-            >Register</v-btn
+            >{{ saveButtonText }}</v-btn
           >
 
-          <router-link to="/login" class="link">
+          <router-link :to="cancelLink" class="link">
             <v-btn
               variant="outlined"
               color="red-darken-4"
@@ -97,6 +107,7 @@ import User from "@/interfaces/User";
 import UserController from "@/controller/UserController";
 import { useAlertStore } from "@/store/alerts";
 import { AlertTypes } from "@/interfaces/Alert";
+import { useUserStore } from "@/store/user";
 
 export default defineComponent({
   name: "UserForm",
@@ -104,14 +115,92 @@ export default defineComponent({
   data() {
     return { show: false };
   },
-  setup() {
+  async setup() {
     const router = useRouter();
+    const userStore = useUserStore();
     const alertStore = useAlertStore();
 
     const name = ref("");
     const email = ref("");
     const username = ref("");
     const password = ref("");
+    let id: User["id"];
+    let saveUser;
+    let appBarTitle = "Task Manager - Update Account";
+    let title = "User information";
+    let saveButtonText = "Save changes";
+    let cancelLink = "/tasks";
+
+    try {
+      await userStore.authenticate();
+      const user = userStore.user;
+
+      id = user?.id;
+      name.value = user?.name || "";
+      email.value = user?.email || "";
+      username.value = user?.username || ";";
+
+      saveUser = async (): Promise<void> => {
+        const user: User = {
+          id: id,
+          name: name.value,
+          email: email.value,
+          username: username.value,
+          password: password.value,
+        };
+        try {
+          await userStore.update(user);
+          alertStore.alert({
+            type: AlertTypes.SUCCESS,
+            text: "Editing successful, your information has been saved!",
+          });
+          router.push("/tasks");
+        } catch (error) {
+          let message =
+            "An unexpected error has occurred when trying to create your account!";
+
+          if (error instanceof Error) message = error.message;
+
+          alertStore.alert({
+            type: AlertTypes.ERROR,
+            text: message,
+          });
+        }
+      };
+    } catch (error) {
+      appBarTitle = "Task Manager - Create Account";
+      title = "Register";
+      saveButtonText = "Create account";
+      cancelLink = "/login";
+
+      saveUser = async (): Promise<void> => {
+        const user: User = {
+          name: name.value,
+          email: email.value,
+          username: username.value,
+          password: password.value,
+        };
+
+        try {
+          await new UserController().createUser(user);
+          alertStore.alert({
+            type: AlertTypes.SUCCESS,
+            text: "Registration completed successfully!",
+          });
+          router.push("/login");
+        } catch (error) {
+          let message =
+            "An unexpected error has occurred when trying to create your account!";
+
+          if (error instanceof Error) message = error.message;
+
+          alertStore.alert({
+            type: AlertTypes.ERROR,
+            text: message,
+          });
+        }
+      };
+    }
 
     const required = (v: string): true | string => !!v || "Required!";
 
@@ -139,33 +228,22 @@ export default defineComponent({
         : "At least 8 characters, one uppercase letter, one lowercase letter, one number and one special character";
     };
 
-    const createUser = async (): Promise<void> => {
-      const user: User = {
-        name: name.value,
-        email: email.value,
-        username: username.value,
-        password: password.value,
-      };
-
-      await new UserController().createUser(user);
-      alertStore.alert({
-        type: AlertTypes.SUCCESS,
-        text: "Registration completed successfully!",
-      });
-      router.push("/login");
-    };
-
     return {
       name,
       email,
       username,
       password,
+      id,
+      title,
+      appBarTitle,
+      saveButtonText,
+      cancelLink,
       required,
       nameMin,
       isValidEmail,
       isValidUsername,
       isValidPassword,
-      createUser,
+      saveUser,
     };
   },
 });
