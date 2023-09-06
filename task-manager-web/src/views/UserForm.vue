@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-container class="container">
+    <AppBar><template v-slot:title>Task Manager</template></AppBar>
+    <v-main class="container">
       <h1 class="title">Register</h1>
       <v-form @submit.prevent="createUser">
         <v-container class="form__container">
@@ -84,19 +85,20 @@
           </router-link>
         </v-container>
       </v-form>
-    </v-container>
+    </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
-import UserController from "@/controller/UserController";
-import User from "@/interfaces/User";
 import { defineComponent, ref } from "vue";
 import { useRouter } from "vue-router";
+import AppBar from "@/components/AppBar.vue";
+import User from "@/interfaces/User";
+import UserController from "@/controller/UserController";
 
 export default defineComponent({
   name: "UserForm",
-  components: {},
+  components: { AppBar },
   data() {
     return { show: false };
   },

@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-container class="container">
+    <AppBar><template v-slot:title>Task Manager</template></AppBar>
+    <v-main class="container">
       <h1 class="title">Login</h1>
       <v-form @submit.prevent="login">
         <v-container class="form__container">
@@ -52,22 +53,22 @@
           </router-link>
         </v-container>
       </v-form>
-    </v-container>
+    </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
+import { defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
+import AppBar from "@/components/AppBar.vue";
 import { AlertTypes } from "@/interfaces/Alert";
 import { useAlertStore } from "@/store/alerts";
 import { useUserStore } from "@/store/user";
 import { getCookie } from "@/utils/cookies";
-import { ref } from "vue";
-import { defineComponent } from "vue";
-import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Login",
-  components: {},
+  components: { AppBar },
   data() {
     return { show: false };
   },

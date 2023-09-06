@@ -26,9 +26,13 @@ export const useUserStore = defineStore({
       const token = getCookie("jwt");
 
       if (!token) throw new Error("Login is required to authenticate!");
-
-      const { id } = await userController.authenticateUser(token);
-      this.user = await userController.getUserById(id, token);
+      try {
+        const { id } = await userController.authenticateUser(token);
+        this.user = await userController.getUserById(id, token);
+      } catch (error) {
+        removeCookie("jwt");
+        throw error;
+      }
     },
 
     logout(): void {
