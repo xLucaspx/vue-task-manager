@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <AppBar
-      ><template v-slot:title>Task Manager - Create Task</template></AppBar
+      ><template v-slot:title>{{ appBarTitle }}</template></AppBar
     >
     <v-main class="container">
-      <v-form @submit.prevent="createTask">
+      <v-form @submit.prevent="saveTask">
         <v-container class="form__container">
           <v-text-field
             class="input"
@@ -24,10 +24,14 @@
             variant="flat"
             size="large"
             color="green-darken-2"
-            prepend-icon="mdi-checkbox-marked-circle-plus-outline"
+            :prepend-icon="
+              id
+                ? 'mdi-pencil-outline'
+                : 'mdi-checkbox-marked-circle-plus-outline'
+            "
             type="submit"
             class="button"
-            >Create</v-btn
+            >{{ saveButtonText }}</v-btn
           >
 
           <router-link to="/tasks" class="link">
@@ -60,7 +64,8 @@ import { useRouter } from "vue-router";
 export default defineComponent({
   name: "TaskForm",
   components: { AppBar },
-  async setup() {
+  props: { id: { type: String } },
+  async setup(props) {
     const router = useRouter();
     const userStore = useUserStore();
     const taskStore = useTaskStore();
@@ -68,8 +73,48 @@ export default defineComponent({
 
     const description = ref("");
 
+    let id = props.id;
+    let appBarTitle = "Task Manager - Create Task";
+    let saveButtonText = "Create";
+    let saveTask = async (): Promise<void> => {
+      const task: Task = {
+        description: description.value,
+        completed: false,
+        userId: userStore.user?.id,
+      };
+
+      await taskStore.create(task);
+      alertStore.alert({
+        type: AlertTypes.SUCCESS,
+        text: "Task created successfully!",
+      });
+      router.push("/tasks");
+    };
+
     try {
       await userStore.authenticate();
+
+      if (id) {
+        const task = taskStore.getById(props.id);
+        description.value = task.description || "";
+
+        appBarTitle = "Task Manager - Update Task";
+        saveButtonText = "Update";
+
+        saveTask = async (): Promise<void> => {
+          const task: Task = {
+            id: Number(id),
+            description: description.value,
+          };
+
+          await taskStore.update(task);
+          alertStore.alert({
+            type: AlertTypes.SUCCESS,
+            text: "Task updated successfully!",
+          });
+          router.push("/tasks");
+        };
+      }
     } catch (error) {
       let message = "An unexpected error has ocurred";
 
@@ -77,7 +122,7 @@ export default defineComponent({
 
       alertStore.alert({ type: AlertTypes.ERROR, text: message });
       console.error(error);
-      router.push("/login");
+      router.push("/tasks");
     }
 
     const required = (v: string): true | string => !!v || "Required!";
@@ -86,26 +131,13 @@ export default defineComponent({
       return v.length >= 3 ? true : "Min 3 characters!";
     };
 
-    const createTask = async (): Promise<void> => {
-      const task: Task = {
-        description: description.value,
-        completed: false,
-        userId: userStore.user?.id,
-      };
-
-      await taskStore.createTask(task);
-      alertStore.alert({
-        type: AlertTypes.SUCCESS,
-        text: "Task created successfully!",
-      });
-      router.push("/tasks");
-    };
-
     return {
       description,
+      appBarTitle,
+      saveButtonText,
       required,
       size,
-      createTask,
+      saveTask,
     };
   },
 });

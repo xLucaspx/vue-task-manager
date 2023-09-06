@@ -24,13 +24,30 @@ export const useTaskStore = defineStore({
       this.tasks = tasks;
     },
 
-    async createTask(task: Task): Promise<void> {
+    getById(id: Task["id"]): Task {
+      const task = this.tasks.find((t: Task) => t.id == id);
+
+      if (task) return task;
+
+      throw new Error("Task not found!");
+    },
+
+    async create(task: Task): Promise<void> {
       const token = getCookie("jwt");
 
       if (!token)
         throw new Error("Authentication is required to create tasks!");
 
       await taskController.createTask(task, token);
+      await this.getTasks();
+    },
+
+    async update(task: Task): Promise<void> {
+      const token = getCookie("jwt");
+
+      if (!token) throw new Error("Authentication is required to edit tasks!");
+
+      await taskController.updateTask(task, token);
       await this.getTasks();
     },
 

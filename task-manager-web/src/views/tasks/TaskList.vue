@@ -69,68 +69,44 @@
           <tbody>
             <tr v-for="task in tasks" :key="task.id">
               <td>{{ task.description }}</td>
-              <td class="text-center">
-                Actions
-                <!-- # Edit button
+              <td class="table__buttons">
+                <v-btn
+                  :variant="task.completed ? 'outlined' : 'flat'"
+                  color="green-darken-2"
+                  prepend-icon="mdi-check-outline"
+                  size="small"
+                  type="button"
+                  :title="
+                    task.completed
+                      ? 'Mark as not completed'
+                      : 'Mark as completed'
+                  "
+                  >{{ task.completed ? "Not completed" : "Completed" }}
+                </v-btn>
+
                 <RouterLink
-                  :to="`/students/${student.id}`"
+                  :to="`/tasks/${task.id}`"
                   class="link"
-                  :title="'Edit ' + student.name"
+                  title="Edit task"
                 >
                   <v-btn
-                    variant="outlined"
+                    variant="flat"
+                    color="blue-darken-1"
                     prepend-icon="mdi-pencil-outline"
                     size="small"
-                    class="table__button"
+                    type="button"
                     >Edit
                   </v-btn>
                 </RouterLink>
 
-                # Delete dialog button
                 <v-btn
-                  color="error"
                   variant="flat"
+                  color="red-darken-4"
                   prepend-icon="mdi-delete-forever-outline"
                   size="small"
-                  class="table__button"
-                  :title="'Delete ' + student.name"
-                  @click="selectStudent(student)"
+                  title="Delete task"
                   >Delete
-
-                  # Delete dialog
-                  <v-dialog
-                    v-model="dialog"
-                    activator="parent"
-                    transition="dialog-top-transition"
-                  >
-                    <v-card class="delete-dialog">
-                      <v-card-text
-                        >Do you wish do permanently delete the student
-                        {{ selectedStudent.name }} under the ID
-                        {{ selectedStudent.id }}?
-                      </v-card-text>
-                      <v-card-actions class="delete-dialog__buttons">
-
-                        # Delete button
-                        <v-btn
-                          color="error"
-                          variant="flat"
-                          prepend-icon="mdi-delete-forever-outline"
-                          @click="deleteStudent(selectedStudent.id)"
-                          >Delete</v-btn
-                        >
-
-                        <v-btn
-                          color="indigo darken-4"
-                          variant="outlined"
-                          prepend-icon="mdi-cancel"
-                          @click="dialog = false"
-                          >Cancel</v-btn
-                        >
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-btn> -->
+                </v-btn>
               </td>
             </tr>
           </tbody>
@@ -206,12 +182,18 @@ export default defineComponent({
 
 .buttons,
 .buttons__task,
-.buttons__user {
+.buttons__user,
+.table__buttons {
   display: flex;
   gap: 15px;
 }
 
 .buttons {
   justify-content: space-between;
+}
+
+.table__buttons {
+  justify-content: flex-end;
+  align-items: center;
 }
 </style>

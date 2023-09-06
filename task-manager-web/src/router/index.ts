@@ -21,6 +21,12 @@ const routes = [
         name: "Create task",
         component: TaskForm,
       },
+      {
+        path: ":id",
+        name: "Edit task",
+        component: TaskForm,
+        props: true,
+      },
     ],
   },
   {
