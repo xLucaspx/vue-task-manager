@@ -74,7 +74,7 @@ export default class UserController extends Controller {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        authentication: `Bearer ${token}`,
+        authorization: `Bearer ${token}`,
       },
     });
 

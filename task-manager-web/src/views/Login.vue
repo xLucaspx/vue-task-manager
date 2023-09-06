@@ -2,15 +2,14 @@
   <v-app>
     <v-container class="container">
       <h1 class="title">Login</h1>
-      <v-form
-        ><!--@submit.prevent="login"-->
+      <v-form @submit.prevent="login">
         <v-container class="form__container">
           <v-text-field
             class="input"
             label="E-mail or username"
             v-model="user"
             variant="outlined"
-            :rules="[required, userMin]"
+            :rules="[required]"
             clearable
             required
           ></v-text-field>
@@ -23,7 +22,7 @@
             variant="outlined"
             :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
             @click:append="show = !show"
-            :rules="[required, passwordMin]"
+            :rules="[required]"
             clearable
             required
           ></v-text-field>
@@ -58,18 +57,56 @@
 </template>
 
 <script lang="ts">
-export default {
+import { AlertTypes } from "@/interfaces/Alert";
+import { useAlertStore } from "@/store/alerts";
+import { useUserStore } from "@/store/user";
+import { getCookie } from "@/utils/cookies";
+import { ref } from "vue";
+import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
+
+export default defineComponent({
+  name: "Login",
+  components: {},
   data() {
+    return { show: false };
+  },
+  setup() {
+    const router = useRouter();
+    const userStore = useUserStore();
+    const alertStore = useAlertStore();
+
+    if (getCookie("jwt")) router.push("/tasks");
+
+    const user = ref("");
+    const password = ref("");
+
+    const required = (v: string): true | string => !!v || "Required!";
+
+    const login = async () => {
+      try {
+        await userStore.login(user.value, password.value);
+        router.push("/tasks");
+      } catch (error) {
+        let message = "An unexpected error has ocurred";
+
+        if (error instanceof Error) message = error.message;
+
+        alertStore.alert({ type: AlertTypes.ERROR, text: message });
+        console.error(error);
+      } finally {
+        password.value = "";
+      }
+    };
+
     return {
-      show: false,
-      password: "",
-      user: "",
-      required: (value: string) => !!value || "Required",
-      passwordMin: (v: string) => v.length >= 8 || "Min 8 characters",
-      userMin: (v: string) => v.length >= 3 || "Min 3 characters",
+      user,
+      password,
+      required,
+      login,
     };
   },
-};
+});
 </script>
 
 <style scoped>

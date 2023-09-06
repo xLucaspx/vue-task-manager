@@ -1,16 +1,19 @@
-import Home from "@/views/Home.vue";
+import Login from "@/views/Login.vue";
+import Tasks from "@/views/Tasks.vue";
+import TaskList from "@/views/tasks/TaskList.vue";
 import UserForm from "@/views/UserForm.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
-    path: "/",
-    component: Home,
+    path: "/tasks",
+    name: "Tasks",
+    component: Tasks,
     children: [
       {
         path: "",
-        name: "Home",
-        component: Home,
+        name: "Tasks",
+        component: TaskList,
       },
     ],
   },
@@ -22,7 +25,7 @@ const routes = [
   {
     path: "/login",
     name: "Sign in",
-    component: Home, //*
+    component: Login,
   },
 ];
 
