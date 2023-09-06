@@ -9,7 +9,7 @@ module.exports = {
         autoIncrement: true,
         type: Sequelize.INTEGER,
       },
-      description: { allowNull: false, type: Sequelize.STRING },
+      description: { allowNull: false, type: new Sequelize.STRING(125) },
       completed: { allowNull: false, type: Sequelize.BOOLEAN },
       userId: {
         allowNull: false,

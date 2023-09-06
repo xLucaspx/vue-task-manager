@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
       },
       description: {
-        type: new DataTypes.STRING(75),
+        type: new DataTypes.STRING(125),
         allowNull: false,
-        validate: { notEmpty: true, len: [3, 75] },
+        validate: { notEmpty: true, len: [3, 125] },
       },
       completed: {
         type: DataTypes.BOOLEAN,
