@@ -65,7 +65,7 @@
             "
             :rules="[isValidPassword, id ? '' : required]"
             clearable
-            required
+            :required="id ? false : true"
           ></v-text-field>
         </v-container>
 
