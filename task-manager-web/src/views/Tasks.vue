@@ -1,6 +1,8 @@
 <template>
   <Suspense>
-    <router-view></router-view>
+    <template #default>
+      <router-view></router-view>
+    </template>
 
     <template #fallback>Loading...</template>
   </Suspense>

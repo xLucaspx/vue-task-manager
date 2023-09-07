@@ -68,6 +68,26 @@ export default class TaskController extends Controller {
     throw new Error(data.error);
   }
 
+  async toggleCompleted(
+    id: Task["id"],
+    completed: Task["completed"],
+    token: string
+  ): Promise<void> {
+    const res = await fetch(`${this.url}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ id, completed }),
+    });
+
+    if (res.ok) return;
+
+    const data: { error: string } = await res.json();
+    throw new Error(data.error);
+  }
+
   async deleteTask(id: Task["id"], token: string): Promise<void> {
     const res = await fetch(`${this.url}/${id}`, {
       method: "DELETE",
