@@ -2,6 +2,8 @@
 
 Desenvolvido por [Lucas da Paz](https://www.linkedin.com/in/xlucaspx/) utilizando Node.js, TypeScript e Vue.js.
 
+[Link do repositório](https://github.com/xLucaspx/vue-task-manager).
+
 ## Índice
 
 - [Produto](#produto)
